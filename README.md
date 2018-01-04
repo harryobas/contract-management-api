@@ -11,4 +11,9 @@ Here is the procedure:
 * The server generates and stores a very large random token, and returns it to the user
 * The user sends their token with future requests to the server
 
-## 
+## Run the app
+```{r, engine='bash'}
+git clone https://github.com/harryobas/contract-management-api.git
+cd contract-management-api
+rackup 
+```
