@@ -63,12 +63,11 @@ end
 delete '/contracts/:id' do
   authenticate!
   user = User.first(:token => @user_token)
-
-  if valid_id?(params[:id]) and contract = Contract.get(Integer(params[:id]))
+  contract = Contract.get(Integer(params[:id])) if valid_id?(params[:id])
+  if contract and contract.user_id == user.id
     status 204 # No content
     contract.destroy
   else
     halt 404, json_status(404, "Contract not found")
   end
-
 end
