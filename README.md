@@ -15,5 +15,9 @@ Here is the procedure:
 ```{r, engine='bash'}
 git clone https://github.com/harryobas/contract-management-api.git
 cd contract-management-api
-rackup 
+rackup
+```
+## Run the tests
+```{r, engine='bash'}
+rake test 
 ```
