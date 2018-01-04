@@ -59,3 +59,16 @@ get '/contracts/:id' do
     halt 404, json_status(404, "Contract not found")
   end
 end
+
+delete '/contracts/:id' do
+  authenticate!
+  user = User.first(:token => @user_token)
+
+  if valid_id?(params[:id]) and contract = Contract.get(Integer(params[:id]))
+    status 204 # No content
+    contract.destroy
+  else
+    halt 404, json_status(404, "Contract not found")
+  end
+
+end

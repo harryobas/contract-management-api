@@ -4,7 +4,6 @@ gem 'json'
 gem 'sinatra-contrib'
 gem 'datamapper'
 gem 'dm-migrations'
-gem 'dm-sqlite-adapter'
 gem 'bcrypt'
 
 group :test do
