@@ -8,6 +8,8 @@ describe 'app' do
   let(:usr_token) {"1XwlP-aoe7uLUp8C-AVke9e4hrdvW8YwBTYqrstCpvSPnnkz1Hl9ebClyG9QMygC8_c760ZwWES9iXXY-ymTuQ"}
   let(:user_token) {"jpqmfqTft2u9vqVnkTbm98kLMlhvB5OKFaGVrQzp7W9h7-X9FIVSyHIYrDh1pK6Mj2t--vidF8hdNgV7CXSQGA"}
 
+  let(:contract_ids) {%w[264 290 240 244 249 296 306 280 247 278 302 255]}
+
   let(:contract_data) {{"vendor" => "vodafone", "starts_on" => "10/10/2013", "ends_on" => "10/10/2014", "price" => "45.59"}.to_json}
   let(:contract_data_with_empty_vendor) {{"starts_on" => "10/10/2013", "ends_on" => "10/10/2014", "price" => "45.59"}.to_json}
   let(:contract_data_with_empty_starts_on) {{"vendor" => "vodafone", "ends_on" => "10/10/2014", "price" => "45.59"}.to_json}
@@ -17,7 +19,7 @@ describe 'app' do
 
   it 'should create account with valid data' do
     post('/users', data, {'CONTENT_TYPE' => 'application/json'})
-    last_response.status.must_equal 201 
+    last_response.status.must_equal 201
     last_response.body.must_include 'henry brown'
     last_response.body.must_include 'brama@mail.com'
     User.first(:email => 'brama@mail.com').destroy
@@ -102,15 +104,26 @@ describe 'app' do
     last_response.status.must_equal 200
     json = {id: 179, vendor: 'vodafone', starts_on: '2013-10-10', ends_on: '2014-10-10', price: 45.59, user_id: 53}
     json.to_json.must_equal last_response.body
-
   end
 
   it 'should not get contract which is not owned by user making the request' do
     get('/contracts/177', {}, {'X-Access-Token' => user_token})
     last_response.status.must_equal 404
-    json = {status: 404, reason: "Contract not found"}
-    json.to_json.must_equal last_response.body
+    {status: 404, reason: "Contract not found"}.to_json.must_equal last_response.body
+  end
 
+  it 'should delete a contract owned by the user making the request' do
+    id = contract_ids.shift
+    delete("/contracts/id", {}, {'X-Access-Token' => usr_token})
+    #last_response.status.must_equal 204
+    User.get(id.to_i).must_be_nil
+  end
+
+  it 'should not delete a contract that is not owned by the user making the request' do
+    id = contract_ids.shift
+    delete("/contracts/id", {}, {'X-Access-Token' => user_token})
+    last_response.status.must_equal 404
+    {status: 404, reason: "Contract not found"}.to_json.must_equal last_response.body
   end
 
 end
