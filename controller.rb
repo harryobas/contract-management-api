@@ -1,5 +1,4 @@
 
-
 post '/users' do
 
   params = parse_json_request
@@ -11,7 +10,7 @@ post '/users' do
   user.password = hash_password(params[:password]) if params.key?(:password)
 
   if user.save
-    status 200
+    status 201 #created
     {id: user.id, full_name: user.full_name, email: user.email, token: user.token}.to_json
   else
     status 400
@@ -46,4 +45,17 @@ post '/contracts' do
     json_status 400, contract.errors.to_hash
   end
 
+end
+
+get '/contracts/:id' do
+  authenticate!
+  user = User.first(:token => @user_token)
+
+  contract = Contract.get(Integer(params[:id])) if valid_id?(params[:id])
+  if contract and contract.user_id == user.id
+    status 200
+    body contract.to_json
+  else
+    halt 404, json_status(404, "Contract not found")
+  end
 end

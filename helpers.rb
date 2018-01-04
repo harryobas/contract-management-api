@@ -7,12 +7,13 @@ helpers do
       end
     rescue JSON::ParserError => e
       request.body.rewind
-      puts "The body #{request.body.read} was not JSON"
+      halt 403, json_status(403, "The body #{request.body.read} was not JSON")
     end
   end
 
   def authenticate!
-    @user_token = request.env['X-Access-Token']
+     #user token for authentication can be received from either the request header or request body
+    @user_token = request.env['X-Access-Token'] or parse_json_request[:token]
     halt 403, json_status(403, 'Authentication required!') unless User.all.map{|u| u.token}.include?(@user_token)
   end
 
@@ -20,10 +21,10 @@ helpers do
     {
       status: code,
       reason: reason
-    }
+    }.to_json
   end
 
-  def valid_id(id)
+  def valid_id?(id)
     id && id.to_s =~ /^\d+$/
   end
 
